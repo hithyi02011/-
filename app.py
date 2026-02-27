@@ -1344,11 +1344,71 @@ def pedigree_to_svg(people, title="Pedigree", show_labels=True):
     svg.append("</svg>")
     return "".join(svg)
 
+def render_beginner_guide_page():
+    st.subheader("新手指引：先看这页，再开始画图")
+    st.info("这是一页独立的说明页，不会改动任何数据。看完后可在左侧切回“家系图编辑”。")
+
+    st.markdown("### 快速上手（建议 3 步）")
+    st.markdown(
+        """
+1. 先点击 **加载示例数据**，看一遍系统默认结构。  
+2. 在“编辑当前人物 / 添加亲属”区域逐步补全家系。  
+3. 最后点击 **生成家系图** 查看结果。
+"""
+    )
+
+    st.markdown("### 什么时候用“高级模式”？")
+    st.markdown(
+        """
+普通场景下，你可以完全不进入高级模式。  
+只有在以下情况，才建议展开 **高级模式（底层数据表 / 配偶候选 / 批量修改）**：
+
+- 需要一次性修改很多行（例如批量改 `id`、父母关系）。
+- 想直接检查每一列的原始数据是否正确。
+- 想用“配偶候选”自动补全 `spouse_id`。
+"""
+    )
+
+    st.markdown("### 高级模式里的 3 个功能怎么用")
+    with st.expander("1) 底层数据表（Data Editor）", expanded=True):
+        st.markdown(
+            """
+- 每一行是一个人物，每一列是属性。  
+- `id` 必须唯一（如 `P1`、`P2`），且父母/配偶引用的 id 必须存在。  
+- 改完后一定点击 **保存底层表格修改（应用到系统）**。
+"""
+        )
+
+    with st.expander("2) 配偶候选（A2）", expanded=True):
+        st.markdown(
+            """
+- 适用场景：你已填写孩子的 `father_id/mother_id`，但没填夫妻双方 `spouse_id`。  
+- 操作顺序：**扫描配偶候选 → 勾选要应用的候选 → 应用所选候选配偶关系**。  
+- 如果提示冲突，说明现有配偶关系不一致，需要人工判断后再改。
+"""
+        )
+
+    with st.expander("3) 批量修改", expanded=True):
+        st.markdown(
+            """
+- 先在底层表格集中编辑，再统一保存。  
+- 批量改 `id` 时，要同步检查 `father_id` / `mother_id` / `spouse_id` 是否仍指向正确人物。  
+- 建议每次大改后立即点一次“生成家系图”自检结构是否正常。
+"""
+        )
+
+    st.success("提示：如果你只是日常录入家系，优先使用主界面的可视化按钮，不必依赖高级模式。")
+
 # =============================
 # UI
 # =============================
 st.title("家系图绘制器（网页版｜家庭块布局）")
 st.caption("2.3H：默认隐藏底层数据表；需要时再展开“高级模式”。")
+
+page = st.sidebar.radio("页面", ["家系图编辑", "新手指引"], index=0)
+if page == "新手指引":
+    render_beginner_guide_page()
+    st.stop()
 
 if "pedigree_df" not in st.session_state:
     st.session_state.pedigree_df = pd.DataFrame(DEFAULT_ROWS)
